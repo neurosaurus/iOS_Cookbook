@@ -15,7 +15,7 @@
 {
     CFErrorRef error = NULL;
     
-    switch (ABAddressBookGetAuthorizationStatus(){
+    switch (ABAddressBookGetAuthorizationStatus()){
     case kABAuthorizationStatusAuthorized:{
         addressbook = ABAddressBookCreateWithOptions(NULL, &error);
         /*Do you work and once you are finished*/
@@ -23,7 +23,35 @@
             CFRelease(addressbok);
         }
         break;
-    }}
+    }
+    //The user has explicitly denied your app from having access to the address book
+    case kABAuthorizationStatusDenied:
+    {
+        [self displayMessage:kDenied];
+        break;
+    }
+    //The user has not yet decided whether they would like to grant access to your app
+    case kABAuthorizationStatusNotDetermined:
+    {
+        addressbook = ABAddressBookCreateWithOptions(NULL, &error);
+        ABAddressBookRequestAccessWithCompletion(addressbook,, ^(bool granted, CFErrorRef error) {
+            if (granted){
+                NSLog(@"Access was granted");
+            } else {
+                NSLog(@"Access was not granted");
+            }
+            if (Addressbook != NULL){
+                CFRelease(addressbook);
+            }
+        });
+        break;
+    }
+    case kABAuthorizationStatusRestricted:
+        {
+            [self displayMessage:kRestricted];
+            break;
+        }
+    }
     
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
