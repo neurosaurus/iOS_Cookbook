@@ -24,6 +24,38 @@ ABAddressBookRef addressBook;
                       otherButtonTitles:nil] show];
 }
 
+//If changes are made to the address book, save them
+- (void)useAddressBook:(ABAddressBookRef)paramAddressBook
+{
+    if (ABAddressBookHasUnsavedChanges(paramAddressBook))
+    {
+        NSLog(@"Changes were found in the address book.");
+        BOOL doYouWantToSaveChanges = YES;
+        
+        if (doYouWantToSaveChanges)
+        {
+            CFErrorRef saveError = NULL;
+            if (ABAddressBookSave(paramAddressBook, &saveError))
+            {
+                //saved changes to addressbook
+            } else
+            {
+                //failed to save changes
+            }
+            
+        }
+            else
+            {
+                //did not want to save changes to address book
+                ABAddressBookRevert(paramAddressBook);
+            }
+        
+    } else {
+        //no changes made to address book
+        NSLog(@"No changes to the address book.");
+    }
+}
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     CFErrorRef error = NULL;
@@ -31,7 +63,7 @@ ABAddressBookRef addressBook;
     switch (ABAddressBookGetAuthorizationStatus()){
     case kABAuthorizationStatusAuthorized:{
         addressBook = ABAddressBookCreateWithOptions(NULL, &error);
-        /*Do you work and once you are finished*/
+        [self useAddressBook:addressBook];
         if (addressBook != NULL) {
             CFRelease(addressBook);
         }
@@ -51,6 +83,7 @@ ABAddressBookRef addressBook;
         {
             if (granted){
                 NSLog(@"Access was granted");
+                [self useAddressBook:addressBook];
             } else {
                 NSLog(@"Access was not granted");
             }
