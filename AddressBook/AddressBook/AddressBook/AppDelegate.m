@@ -9,7 +9,20 @@
 #import "AppDelegate.h"
 #import <AddressBook/AddressBook.h>
 
+NSString *const kDenied = @"Acces to address book is denied";
+NSString *const kRestricted = @"Acces to address book is restricted";
+
+ABAddressBookRef addressBook;
+
 @implementation AppDelegate
+
+- (void)displayMessage:(NSString *)paramMessage{
+    [[[UIAlertView alloc] initWithTitle:nil
+                                message:paramMessage
+                               delegate:nil
+                      cancelButtonTitle:@"OK"
+                      otherButtonTitles:nil] show];
+}
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
@@ -17,10 +30,10 @@
     
     switch (ABAddressBookGetAuthorizationStatus()){
     case kABAuthorizationStatusAuthorized:{
-        addressbook = ABAddressBookCreateWithOptions(NULL, &error);
+        addressBook = ABAddressBookCreateWithOptions(NULL, &error);
         /*Do you work and once you are finished*/
-        if (addressbook != NULL) {
-            CFRelease(addressbok);
+        if (addressBook != NULL) {
+            CFRelease(addressBook);
         }
         break;
     }
@@ -33,15 +46,16 @@
     //The user has not yet decided whether they would like to grant access to your app
     case kABAuthorizationStatusNotDetermined:
     {
-        addressbook = ABAddressBookCreateWithOptions(NULL, &error);
-        ABAddressBookRequestAccessWithCompletion(addressbook,, ^(bool granted, CFErrorRef error) {
+        addressBook = ABAddressBookCreateWithOptions(NULL, &error);
+        ABAddressBookRequestAccessWithCompletion(addressBook, ^(bool granted, CFErrorRef error)
+        {
             if (granted){
                 NSLog(@"Access was granted");
             } else {
                 NSLog(@"Access was not granted");
             }
-            if (Addressbook != NULL){
-                CFRelease(addressbook);
+            if (addressBook != NULL){
+                CFRelease(addressBook);
             }
         });
         break;
